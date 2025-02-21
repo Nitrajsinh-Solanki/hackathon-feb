@@ -5,11 +5,10 @@
 
 
 
-
 'use client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { UserCircleIcon } from '@heroicons/react/24/outline'
+import { UserCircleIcon, PencilIcon } from '@heroicons/react/24/outline'
 
 export default function DashboardNavbar() {
   const router = useRouter()
@@ -24,7 +23,6 @@ export default function DashboardNavbar() {
       })
 
       const data = await response.json()
-
       if (response.ok) {
         router.push(data.redirect)
       }
@@ -44,7 +42,15 @@ export default function DashboardNavbar() {
           </div>
           
           <div className="flex items-center space-x-4">
-          <button
+            <Link
+              href="/handwriting"
+              className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+            >
+              <PencilIcon className="h-5 w-5 mr-2" />
+              Handwriting Recognition
+            </Link>
+            
+            <button
               onClick={handleLogout}
               className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
             >
@@ -54,7 +60,6 @@ export default function DashboardNavbar() {
             <button className="p-2 rounded-full hover:bg-gray-100">
               <UserCircleIcon className="h-8 w-8 text-gray-600" />
             </button>
-           
           </div>
         </div>
       </div>

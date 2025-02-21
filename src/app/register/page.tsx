@@ -35,7 +35,6 @@ export default function Register() {
       const data = await response.json()
   
       if (response.ok) {
-        // Navigate to verify-otp page with email parameter
         router.push(data.redirect)
       } else {
         setError(data.message)

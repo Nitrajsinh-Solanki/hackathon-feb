@@ -14,7 +14,6 @@ export async function POST(request: Request) {
     
     const { username, email, password } = await request.json()
     
-    // Add console.log for debugging
     console.log('Registration attempt:', { username, email })
     
     const existingUser = await User.findOne({ $or: [{ email }, { username }] })

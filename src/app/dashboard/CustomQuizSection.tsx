@@ -12,7 +12,6 @@ export default function CustomQuizSection() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Will handle custom quiz generation later
     console.log('Generate quiz for:', topic)
   }
 
