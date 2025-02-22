@@ -1,74 +1,94 @@
 // hackathon-feb\src\components\handwriting\Canvas.tsx
 
+
+
+
+
+
+
 'use client'
 import { useRef, useEffect, useState } from 'react'
 
 interface CanvasProps {
   setRecognizedText: (text: string) => void
   setIsProcessing: (isProcessing: boolean) => void
+  penSize: number
+  penColor: string
 }
 
-export default function Canvas({ setRecognizedText, setIsProcessing }: CanvasProps) {
+export default function Canvas({ setRecognizedText, setIsProcessing, penSize, penColor }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isDrawing, setIsDrawing] = useState(false)
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (canvas) {
-      canvas.width = canvas.offsetWidth
-      canvas.height = canvas.offsetHeight
+      const dpr = window.devicePixelRatio || 1
+      const rect = canvas.getBoundingClientRect()
+      
+      canvas.width = rect.width * dpr
+      canvas.height = rect.height * dpr
+      
       const ctx = canvas.getContext('2d')
       if (ctx) {
-        ctx.strokeStyle = 'black'
-        ctx.lineWidth = 2
+        ctx.scale(dpr, dpr)
+        ctx.strokeStyle = penColor
+        ctx.lineWidth = penSize
         ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
       }
     }
-  }, [])
+  }, [penSize, penColor])
+
+  const getCoordinates = (e: any) => {
+    const canvas = canvasRef.current
+    if (!canvas) return { x: 0, y: 0 }
+
+    const rect = canvas.getBoundingClientRect()
+    const dpr = window.devicePixelRatio || 1
+
+    if (e.type.startsWith('mouse')) {
+      return {
+        x: (e.clientX - rect.left) * (canvas.width / (rect.width * dpr)),
+        y: (e.clientY - rect.top) * (canvas.height / (rect.height * dpr))
+      }
+    } else if (e.type.startsWith('touch')) {
+      const touch = e.touches[0]
+      return {
+        x: (touch.clientX - rect.left) * (canvas.width / (rect.width * dpr)),
+        y: (touch.clientY - rect.top) * (canvas.height / (rect.height * dpr))
+      }
+    }
+    return { x: 0, y: 0 }
+  }
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    const { offsetX, offsetY } = getCoordinates(e)
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext('2d')
+    e.preventDefault()
+    const { x, y } = getCoordinates(e.nativeEvent)
+    const ctx = canvasRef.current?.getContext('2d')
+    
     if (ctx) {
       ctx.beginPath()
-      ctx.moveTo(offsetX, offsetY)
+      ctx.moveTo(x, y)
       setIsDrawing(true)
     }
   }
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault()
     if (!isDrawing) return
 
-    const { offsetX, offsetY } = getCoordinates(e)
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext('2d')
+    const { x, y } = getCoordinates(e.nativeEvent)
+    const ctx = canvasRef.current?.getContext('2d')
+    
     if (ctx) {
-      ctx.lineTo(offsetX, offsetY)
+      ctx.lineTo(x, y)
       ctx.stroke()
     }
   }
 
   const stopDrawing = () => {
     setIsDrawing(false)
-  }
-
-  const getCoordinates = (e: any) => {
-    const canvas = canvasRef.current
-    if (!canvas) return { offsetX: 0, offsetY: 0 }
-
-    if (e.nativeEvent instanceof MouseEvent) {
-      return { offsetX: e.nativeEvent.offsetX, offsetY: e.nativeEvent.offsetY }
-    } else if (e.touches && e.touches.length > 0) {
-      const rect = canvas.getBoundingClientRect()
-      const touch = e.touches[0]
-      return { offsetX: touch.clientX - rect.left, offsetY: touch.clientY - rect.top }
-    }
-    return { offsetX: 0, offsetY: 0 }
   }
 
   const handleRecognize = async () => {
@@ -78,7 +98,7 @@ export default function Canvas({ setRecognizedText, setIsProcessing }: CanvasPro
     try {
       const canvas = canvasRef.current
       const blob = await new Promise<Blob>((resolve) =>
-        canvas.toBlob((blob) => resolve(blob!), 'image/png')
+        canvas.toBlob((blob) => resolve(blob!), 'image/png', 1.0)
       )
 
       const formData = new FormData()
@@ -92,7 +112,8 @@ export default function Canvas({ setRecognizedText, setIsProcessing }: CanvasPro
       const data = await response.json()
       setRecognizedText(
         `Expression: ${data.recognized}\n\nSolution: ${data.solution}`
-      );    } catch (error) {
+      )
+    } catch (error) {
       console.error('Recognition failed:', error)
       setRecognizedText('Recognition failed')
     } finally {
@@ -106,7 +127,8 @@ export default function Canvas({ setRecognizedText, setIsProcessing }: CanvasPro
 
     const ctx = canvas.getContext('2d')
     if (ctx) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      const dpr = window.devicePixelRatio || 1
+      ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr)
       setRecognizedText('')
     }
   }
@@ -116,6 +138,7 @@ export default function Canvas({ setRecognizedText, setIsProcessing }: CanvasPro
       <canvas
         ref={canvasRef}
         className="border-2 border-gray-300 rounded-lg w-full h-96 touch-none"
+        style={{ touchAction: 'none' }}
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={stopDrawing}

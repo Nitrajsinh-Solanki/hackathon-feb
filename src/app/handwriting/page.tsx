@@ -10,6 +10,8 @@ import DashboardNavbar from '../dashboard/DashboardNavbar'
 export default function HandwritingPage() {
   const [recognizedText, setRecognizedText] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
+  const [penSize, setPenSize] = useState(2)
+  const [penColor, setPenColor] = useState('#000000')
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -21,10 +23,17 @@ export default function HandwritingPage() {
               Math Handwriting Recognition
             </h1>
             <div className="space-y-4">
-              <ToolBar />
+              <ToolBar 
+                penSize={penSize}
+                setPenSize={setPenSize}
+                penColor={penColor}
+                setPenColor={setPenColor}
+              />
               <Canvas 
                 setRecognizedText={setRecognizedText}
                 setIsProcessing={setIsProcessing}
+                penSize={penSize}
+                penColor={penColor}
               />
               <div className="mt-4 p-4 bg-gray-50 rounded-md">
                 <h2 className="text-lg font-medium text-gray-900 mb-2">

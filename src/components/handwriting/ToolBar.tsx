@@ -1,12 +1,17 @@
 // hackathon-feb\src\components\handwriting\ToolBar.tsx
+interface ToolBarProps {
+  penSize: number
+  setPenSize: (size: number) => void
+  penColor: string
+  setPenColor: (color: string) => void
+}
 
-'use client'
-import { useState } from 'react'
-
-export default function ToolBar() {
-  const [penSize, setPenSize] = useState(2)
-  const [penColor, setPenColor] = useState('#000000')
-
+export default function ToolBar({ 
+  penSize, 
+  setPenSize, 
+  penColor, 
+  setPenColor 
+}: ToolBarProps) {
   return (
     <div className="flex items-center space-x-4 p-2 bg-gray-100 rounded-md">
       <div className="flex items-center">
@@ -17,14 +22,13 @@ export default function ToolBar() {
           type="range"
           id="penSize"
           min="1"
-          max="10"
+          max="20"
           value={penSize}
           onChange={(e) => setPenSize(Number(e.target.value))}
           className="w-24"
         />
         <span className="ml-2 text-sm text-gray-600">{penSize}px</span>
       </div>
-
       <div className="flex items-center">
         <label htmlFor="penColor" className="mr-2 text-sm font-medium text-gray-700">
           Color:
