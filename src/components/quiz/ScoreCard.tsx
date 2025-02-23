@@ -1,11 +1,13 @@
 // hackathon-feb\src\components\quiz\ScoreCard.tsx
 
 
+
 import React from "react";
 import { Question } from "@/lib/types/quiz";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
+import confetti from "canvas-confetti";
 
 interface ScoreCardProps {
   questions: Question[];
@@ -27,16 +29,13 @@ export default function ScoreCard({ questions, answers }: ScoreCardProps) {
   const generatePDF = () => {
     const doc = new jsPDF();
 
-    // Title
     doc.setFontSize(20);
     doc.text("Quiz Results", 105, 15, { align: "center" });
 
-    // Score Summary
     doc.setFontSize(14);
     doc.text(`Score: ${percentage}%`, 20, 25);
     doc.text(`Correct Answers: ${correctAnswers}/${totalQuestions}`, 20, 35);
 
-    // Table Headers
     let yPos = 50;
     doc.setFontSize(12);
     doc.text("Q#", 20, yPos);
@@ -45,10 +44,9 @@ export default function ScoreCard({ questions, answers }: ScoreCardProps) {
     doc.text("Correct Answer", 150, yPos);
 
     yPos += 10;
-    doc.line(20, yPos, 190, yPos); // Horizontal line separator
+    doc.line(20, yPos, 190, yPos);
     yPos += 5;
 
-    // Table Data
     questions.forEach((question, index) => {
       const answer = answers.find((a) => a?.questionId === index) || {
         selectedAnswer: "Not answered",
@@ -67,25 +65,21 @@ export default function ScoreCard({ questions, answers }: ScoreCardProps) {
 
       yPos += Math.max(questionText.length, userAnswer.length, correctAnswer.length) * 6 + 5;
 
-      // Explanation (Optional)
       if (question.explanation) {
         const explanationText = doc.splitTextToSize(`Explanation: ${question.explanation}`, 170);
         doc.text(explanationText, 30, yPos);
         yPos += explanationText.length * 6 + 5;
       }
 
-      // Add a line between rows
       doc.line(20, yPos, 190, yPos);
       yPos += 5;
 
-      // Add a new page if needed
       if (yPos > 270) {
         doc.addPage();
         yPos = 20;
       }
     });
 
-    // Save the PDF
     doc.save(`quiz-results-${Date.now()}.pdf`);
   };
 
@@ -132,6 +126,14 @@ export default function ScoreCard({ questions, answers }: ScoreCardProps) {
 
       saveQuizResults();
     }
+
+    if (percentage >= 50) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
+    }
   }, []);
 
   return (
@@ -145,6 +147,9 @@ export default function ScoreCard({ questions, answers }: ScoreCardProps) {
           <p className="text-xl mt-4 text-black">
             You got {correctAnswers} out of {totalQuestions} questions correct
           </p>
+          {percentage < 50 && (
+            <p className="text-red-500 mt-2">Keep practicing to improve your score!</p>
+          )}
         </div>
 
         <div className="space-y-6">
@@ -186,8 +191,18 @@ export default function ScoreCard({ questions, answers }: ScoreCardProps) {
             onClick={generatePDF}
             className="px-8 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white text-lg font-semibold rounded-lg shadow-md hover:from-green-700 hover:to-teal-700 transform transition-all hover:scale-[1.02] flex items-center gap-2"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              />
             </svg>
             Download PDF
           </button>

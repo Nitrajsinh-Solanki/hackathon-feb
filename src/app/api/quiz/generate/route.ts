@@ -14,7 +14,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { topic, subtopic, difficulty, numberOfQuestions } = body;
 
-    // Strictly enforce the question limit
     const count = Math.min(parseInt(numberOfQuestions) || 5, 20);
 
     const questions = await getRandomQuestions(
@@ -24,7 +23,6 @@ export async function POST(request: Request) {
       count
     );
 
-    // Ensure exact number of questions requested
     const limitedQuestions = questions.slice(0, count);
 
     return NextResponse.json({

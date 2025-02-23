@@ -20,7 +20,6 @@ export async function POST(request: Request) {
 
     await dbConnect()
     
-    // Search for user with original email
     const user = await User.findOne({ email })
     console.log('Verification attempt for:', email)
     console.log('User found:', !!user)
@@ -32,7 +31,6 @@ export async function POST(request: Request) {
       )
     }
 
-    // Validate OTP
     if (!otp) {
       return NextResponse.json(
         { message: 'OTP is required' },
@@ -61,7 +59,6 @@ export async function POST(request: Request) {
       )
     }
 
-    // Update user verification status
     await User.updateOne(
       { email },
       { 

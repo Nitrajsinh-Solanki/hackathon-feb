@@ -1,10 +1,6 @@
 // hackathon-feb\src\components\quiz\QuizComponent.tsx
 
-
-
-
-
-
+'use client';
 import React, { useState, useEffect } from 'react';
 import { Question, QuizSettings } from '@/lib/types/quiz';
 import ProgressBar from './ProgressBar';
@@ -41,20 +37,20 @@ export default function QuizComponent({ settings, onComplete }: QuizComponentPro
         setLoading(false);
         return;
       }
-  
+
       const response = await fetch('/api/quiz/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings)
       });
-  
+
       if (!response.ok) throw new Error('Failed to fetch questions');
       const data = await response.json();
-      
+
       if (!data.questions || !Array.isArray(data.questions)) {
         throw new Error('Invalid question data received');
       }
-  
+
       // Ensure we only use the specified number of questions
       setQuestions(data.questions.slice(0, settings.numberOfQuestions));
     } catch (error) {
@@ -65,35 +61,90 @@ export default function QuizComponent({ settings, onComplete }: QuizComponentPro
     }
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600"></div>
-      </div>
-    );
-  }
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600"></div>
+        </div>
+      );
+    }
 
-  if (error) {
+    if (error) {
+      return (
+        <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-red-700 text-center border border-red-300">
+            <p className="text-xl font-semibold">Oops! Something went wrong.</p>
+            <p className="mt-2 text-md">{error}</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (!questions.length) {
+      return (
+        <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-gray-900 text-center border border-gray-300">
+            <p className="text-lg font-semibold">No questions available</p>
+            <p className="mt-2 text-md">Try again later or check your settings.</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (quizComplete) {
+      return <ScoreCard questions={questions} answers={answers} />;
+    }
+
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300">
-        <div className="bg-white p-6 rounded-lg shadow-lg text-red-700 text-center border border-red-300">
-          <p className="text-xl font-semibold">Oops! Something went wrong.</p>
-          <p className="mt-2 text-md">{error}</p>
+      <div className="min-h-[calc(100vh-64px)] bg-gradient-to-br from-gray-100 to-gray-300 py-10 px-4">
+        <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-2xl border border-gray-300">
+          <ProgressBar
+            currentQuestion={currentIndex + 1}
+            totalQuestions={questions.length}
+          />
+
+          <div className="mt-8">
+            {questions[currentIndex] && (
+              <QuestionDisplay
+                question={questions[currentIndex]}
+                selectedAnswer={selectedAnswer}
+                onAnswerSelect={setSelectedAnswer}
+                showExplanation={showExplanation}
+              />
+            )}
+          </div>
+
+          <div className="mt-8 flex justify-end gap-4">
+            {!showExplanation ? (
+              <button
+                onClick={handleAnswerSubmit}
+                disabled={!selectedAnswer}
+                className="px-8 py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-offset-2"
+              >
+                Submit Answer
+              </button>
+            ) : (
+              <button
+                onClick={handleNext}
+                className="px-8 py-3 bg-green-600 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-green-700 transform transition-all hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300 focus:ring-offset-2"
+              >
+                Next Question
+              </button>
+            )}
+          </div>
+
+          {!showExplanation && (
+            <div className="mt-4 text-gray-600 text-center">
+              <p>
+                <strong>Note:</strong> If you submit an incorrect answer, a similar question will be generated and added to your current quiz for practice.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );
-  }
-
-  if (!questions.length) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300">
-        <div className="bg-white p-6 rounded-lg shadow-lg text-gray-900 text-center border border-gray-300">
-          <p className="text-lg font-semibold">No questions available</p>
-          <p className="mt-2 text-md">Try again later or check your settings.</p>
-        </div>
-      </div>
-    );
-  }
+  };
 
   async function handleAnswerSubmit() {
     const currentQuestion = questions[currentIndex];
@@ -142,50 +193,10 @@ export default function QuizComponent({ settings, onComplete }: QuizComponentPro
       });
     }
   }
-  
-
-  if (quizComplete) {
-    return <ScoreCard questions={questions} answers={answers} />;
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 py-10 px-4">
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-2xl border border-gray-300">
-        <ProgressBar 
-          currentQuestion={currentIndex + 1} 
-          totalQuestions={questions.length} 
-        />
-        
-        <div className="mt-8">
-          {questions[currentIndex] && (
-            <QuestionDisplay
-              question={questions[currentIndex]}
-              selectedAnswer={selectedAnswer}
-              onAnswerSelect={setSelectedAnswer}
-              showExplanation={showExplanation}
-            />
-          )}
-        </div>
-
-        <div className="mt-8 flex justify-end gap-4">
-          {!showExplanation ? (
-            <button
-              onClick={handleAnswerSubmit}
-              disabled={!selectedAnswer}
-              className="px-8 py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-offset-2"
-            >
-              Submit Answer
-            </button>
-          ) : (
-            <button
-              onClick={handleNext}
-              className="px-8 py-3 bg-green-600 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-green-700 transform transition-all hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300 focus:ring-offset-2"
-            >
-              Next Question
-            </button>
-          )}
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {renderContent()}
     </div>
   );
 }

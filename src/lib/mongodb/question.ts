@@ -6,7 +6,6 @@ import dbConnect from './connect';
 import { generateQuestion } from '../ai/gemini';
 import { mathTopics } from '@/utils/mathTopics';
 
-// Update the saveQuestion function
 export async function saveQuestion(questionData: any) {
   try {
     await dbConnect();
@@ -80,7 +79,6 @@ export async function getRandomQuestions(topic: string, subtopic: string | null,
       questions = [...questions, ...generatedQuestions];
     }
 
-    // Ensure we return exactly the requested number of questions
     return questions.slice(0, count);
   } catch (error) {
     console.error('Error fetching random questions:', error);

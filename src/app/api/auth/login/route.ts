@@ -40,13 +40,12 @@ export async function POST(request: Request) {
       )
     }
 
-    // Fix: Await cookies()
     const cookieStore = await cookies()
     cookieStore.set('auth_token', user._id.toString(), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 60 * 24 * 7 // 7 days
+      maxAge: 60 * 60 * 24 * 7 
     })
 
     return NextResponse.json({ 
