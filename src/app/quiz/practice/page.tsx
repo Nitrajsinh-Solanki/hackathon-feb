@@ -3,8 +3,6 @@
 
 
 
-
-
 'use client';
 
 import React, { useState } from 'react';
@@ -46,45 +44,50 @@ export default function PracticePage() {
 
   if (!started) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12">
         <div className="max-w-2xl mx-auto p-8 bg-white rounded-2xl shadow-xl">
-          <h1 className="text-3xl font-bold mb-8 text-indigo-800 text-center">
-            Practice Settings
-          </h1>
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-black mb-3">
+              Practice Quiz
+            </h1>
+            <p className="text-xl text-black">
+              Topic: <span className="font-semibold">{settings.topic}</span>
+            </p>
+          </div>
 
           <form
-            className="space-y-6"
+            className="space-y-8"
             onSubmit={(e) => {
               e.preventDefault();
               setStarted(true);
             }}
           >
-            <div>
-              <label className="block mb-2 text-lg font-medium text-gray-900">
-                Difficulty
+            <div className="space-y-2">
+              <label className="block text-xl font-semibold text-black">
+                Select Difficulty Level
               </label>
               <select
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                className="w-full p-4 text-black text-lg border-2 border-indigo-100 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                 required
                 value={settings.difficulty}
                 onChange={(e) => setSettings({...settings, difficulty: e.target.value})}
               >
-                <option value="">Select Difficulty</option>
+                <option value="">Choose difficulty</option>
                 <option value="Basic">Basic</option>
                 <option value="Intermediate">Intermediate</option>
                 <option value="Advanced">Advanced</option>
               </select>
             </div>
 
-            <div>
-              <label className="block mb-2 text-lg font-medium text-gray-900">
-                Number of Questions (1-20)
+            <div className="space-y-2">
+              <label className="block text-xl font-semibold text-black">
+                Number of Questions
               </label>
               <input
                 type="number"
                 min="1"
                 max="20"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                className="w-full p-4 text-black text-lg border-2 border-indigo-100 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                 required
                 value={settings.numberOfQuestions}
                 onChange={(e) => setSettings({
@@ -92,15 +95,25 @@ export default function PracticePage() {
                   numberOfQuestions: parseInt(e.target.value)
                 })}
               />
+              <p className="text-sm text-black mt-1">Choose between 1 to 20 questions</p>
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-lg font-semibold rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transform transition-all hover:scale-[1.02]"
+              className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xl font-bold rounded-xl shadow-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl"
             >
-              Start Practice
+              Start Quiz
             </button>
           </form>
+
+          <div className="mt-8 p-4 bg-blue-50 rounded-xl">
+            <h3 className="text-lg font-semibold text-black mb-2">Quiz Information</h3>
+            <ul className="text-black space-y-2">
+              <li>• Questions are randomly generated based on your topic</li>
+              <li>• Take your time to answer each question carefully</li>
+              <li>• You'll receive detailed explanations after submission</li>
+            </ul>
+          </div>
         </div>
       </div>
     );
