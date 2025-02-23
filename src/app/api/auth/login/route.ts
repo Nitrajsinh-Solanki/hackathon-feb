@@ -5,14 +5,14 @@
 
 
 import { NextResponse } from 'next/server'
-import { connectToDatabase } from '@/lib/mongodb/connect'
+import dbConnect from '@/lib/mongodb/connect'
 import bcrypt from 'bcryptjs'
 import { User } from '@/lib/models/User'
 import { cookies } from 'next/headers'
 
 export async function POST(request: Request) {
   try {
-    await connectToDatabase()
+    await dbConnect()
     
     const { email, password } = await request.json()
     const user = await User.findOne({ email })

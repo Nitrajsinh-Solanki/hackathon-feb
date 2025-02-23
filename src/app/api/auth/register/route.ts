@@ -3,14 +3,14 @@
 
 
 import { NextResponse } from 'next/server'
-import { connectToDatabase } from '@/lib/mongodb/connect'
+import dbConnect from '@/lib/mongodb/connect'
 import bcrypt from 'bcryptjs'
 import { User } from '@/lib/models/User'
 import { sendOTP } from '@/lib/email/gmail'
 
 export async function POST(request: Request) {
   try {
-    await connectToDatabase()
+    await dbConnect() 
     
     const { username, email, password } = await request.json()
     

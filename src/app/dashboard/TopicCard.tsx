@@ -1,5 +1,8 @@
 // hackathon-feb\src\app\dashboard\TopicCard.tsx
 
+
+import { useRouter } from "next/navigation"
+
 interface TopicCardProps {
     title: string
     description: string
@@ -8,6 +11,13 @@ interface TopicCardProps {
   }
   
   export default function TopicCard({ title, description, icon, difficulty }: TopicCardProps) {
+
+    const router = useRouter()
+
+    const handleStartPractice = () => {
+      router.push(`/quiz/practice?topic=${title}`)
+    }
+
     return (
       <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow duration-300">
         <div className="p-6">
@@ -32,7 +42,7 @@ interface TopicCardProps {
           </p>
           
           <div className="mt-6">
-            <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+            <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700" onClick={handleStartPractice}>
               Start Practice
             </button>
           </div>

@@ -1,49 +1,55 @@
 // hackathon-feb\src\lib\mongodb\connect.ts
 
-import mongoose, { Mongoose } from 'mongoose'
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Add MONGODB_URI to .env.local')
-}
 
-const MONGODB_URI: string = process.env.MONGODB_URI
+import mongoose from 'mongoose';
 
-interface Cached {
-  conn: Mongoose | null;
-  promise: Promise<Mongoose> | null;
+interface MongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
 }
 
 declare global {
-  var mongoose: Cached | undefined;
+  var mongoose: MongooseCache | undefined;
 }
 
-let cached: Cached = global.mongoose || { conn: null, promise: null }
+const MONGODB_URI = process.env.MONGODB_URI!;
+
+const options = {
+  bufferCommands: true,
+  autoIndex: true,
+  serverSelectionTimeoutMS: 30000,
+  socketTimeoutMS: 45000,
+  connectTimeoutMS: 30000,
+  maxPoolSize: 50
+};
+
+if (!MONGODB_URI) {
+  throw new Error('Please define the MONGODB_URI environment variable');
+}
+
+let cached = global.mongoose || { conn: null, promise: null };
 
 if (!global.mongoose) {
-  global.mongoose = cached
+  global.mongoose = cached;
 }
 
-export async function connectToDatabase() {
+async function dbConnect(): Promise<typeof mongoose> {
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI, options);
+  }
+
   try {
-    if (cached.conn) {
-      console.log('Using cached connection')
-      return cached.conn
-    }
-
-    if (!cached.promise) {
-      const opts = {
-        bufferCommands: false,
-      }
-      console.log('Connecting to MongoDB...')
-      cached.promise = mongoose.connect(MONGODB_URI, opts).then((m) => m)
-    }
-
-    cached.conn = await cached.promise
-    console.log('Successfully connected to MongoDB')
-    return cached.conn
+    cached.conn = await cached.promise;
+    return cached.conn;
   } catch (e) {
-    cached.promise = null
-    console.error('MongoDB connection error:', e)
-    throw e
+    cached.promise = null;
+    throw e;
   }
 }
+
+export default dbConnect;

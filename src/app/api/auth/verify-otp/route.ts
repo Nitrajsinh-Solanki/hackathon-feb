@@ -5,13 +5,12 @@
 
 import { NextResponse } from 'next/server'
 import { User } from '@/lib/models/User'
-import { connectToDatabase } from '@/lib/mongodb/connect'
+import dbConnect from '@/lib/mongodb/connect'
 
 export async function POST(request: Request) {
   try {
     const { email, otp } = await request.json()
     
-    // Validate email presence
     if (!email) {
       return NextResponse.json(
         { message: 'Email is required' },
@@ -19,7 +18,7 @@ export async function POST(request: Request) {
       )
     }
 
-    await connectToDatabase()
+    await dbConnect()
     
     // Search for user with original email
     const user = await User.findOne({ email })
