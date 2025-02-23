@@ -2,7 +2,7 @@
 
 
 import { NextResponse } from 'next/server';
-import { getUserQuizHistory } from '@/lib/mongodb/quizHistory';
+import { getUserQuizHistory,saveQuizHistory } from '@/lib/mongodb/quizHistory';
 
 export async function GET(request: Request) {
   try {
@@ -18,5 +18,18 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('Error fetching quiz history:', error);
     return NextResponse.json({ error: 'Failed to fetch quiz history' }, { status: 500 });
+  }
+}
+
+
+
+export async function POST(request: Request) {
+  try {
+    const quizData = await request.json();
+    const savedHistory = await saveQuizHistory(quizData);
+    return NextResponse.json(savedHistory);
+  } catch (error) {
+    console.error('Error saving quiz history:', error);
+    return NextResponse.json({ error: 'Failed to save quiz history' }, { status: 500 });
   }
 }

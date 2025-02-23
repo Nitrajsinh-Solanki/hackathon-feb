@@ -49,12 +49,7 @@ export default function QuizHistory({ history }: QuizHistoryProps) {
               </div>
             </div>
             
-            <Link 
-              href={`/quiz/history/${quiz._id}`}
-              className="mt-3 inline-block text-sm text-blue-600 hover:underline"
-            >
-              View Details
-            </Link>
+          
           </div>
         ))}
       </div>

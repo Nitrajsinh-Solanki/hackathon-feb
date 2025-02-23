@@ -3,6 +3,7 @@
 import React from "react";
 import { Question } from "@/lib/types/quiz";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface ScoreCardProps {
   questions: Question[];
@@ -18,6 +19,59 @@ export default function ScoreCard({ questions, answers }: ScoreCardProps) {
   const totalQuestions = questions.length;
   const correctAnswers = answers.filter((a) => a.isCorrect).length;
   const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+
+  const [saved, setSaved] = useState(false);
+
+  const [saveAttempted, setSaveAttempted] = useState(false);
+
+  useEffect(() => {
+    // Only attempt to save once
+    if (!saveAttempted) {
+      const saveQuizResults = async () => {
+        try {
+          const userResponse = await fetch("/api/user/current");
+          const userData = await userResponse.json();
+
+          const quizData = {
+            userId: userData.userId,
+            topic: questions[0].topic,
+            subtopic: questions[0].subtopic,
+            difficulty: questions[0].difficulty,
+            questions: questions.map((q, index) => ({
+              question: q.question,
+              userAnswer: answers[index]?.selectedAnswer || "Not answered",
+              correctAnswer: q.correctAnswer,
+              isCorrect: answers[index]?.isCorrect || false,
+              explanation: q.explanation,
+            })),
+            score: answers.filter((a) => a.isCorrect).length,
+            totalQuestions: questions.length,
+            percentage: Math.round(
+              (answers.filter((a) => a.isCorrect).length / questions.length) *
+                100
+            ),
+            timeTaken: Date.now(),
+            completedAt: new Date(),
+          };
+
+          const response = await fetch("/api/quiz/history", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(quizData),
+          });
+
+          if (response.ok) {
+            setSaved(true);
+          }
+        } catch (error) {
+          console.error("Error saving quiz history:", error);
+        }
+        setSaveAttempted(true);
+      };
+
+      saveQuizResults();
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 py-8">
