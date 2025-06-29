@@ -1,4 +1,17 @@
+# 🏆 Math Genius AI – 🧠 Won $10 Merit Prize!
+
+This is my awarded submission for the StackUp Hackathon. **Math Genius AI** is an intelligent, interactive learning platform focused on enhancing math education with **AI-generated quizzes, handwriting recognition**, and **adaptive explanations**.  
+I received a **$10 merit prize** for its innovation in AI + Education! 🥳
+
 ---
+
+## 📸 Screenshots
+ ![](./Screenshot%202025-06-29%20143839.png) ![](./Screenshot%202025-06-29%20143850.png) 
+  ![](./Screenshot%202025-06-29%20143817.png) 
+![](./Screenshot%202025-06-29%20143731.png) 
+
+---
+
 
 # **📚 Math Genius AI – Next-Gen Math Learning Platform**  
 
